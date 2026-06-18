@@ -39,4 +39,9 @@ async def hit(message: Message, target: str):
     await message.answer(
         phrase.format(
             user=f"[id{message.from_id}|Пользователь]",
-            target=
+            target=target
+        )
+    )
+
+
+bot.run_forever()
