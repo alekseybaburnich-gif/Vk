@@ -44,4 +44,4 @@ async def hit(message: Message, target: str):
     )
 
 
-bot.run_forever()
+bot.run()
