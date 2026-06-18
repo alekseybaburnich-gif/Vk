@@ -1,7 +1,8 @@
 from vkbottle import Bot, Message
 import random
+import os
 
-TOKEN = "ТОКЕН_ВАШЕГО_СООБЩЕСТВА"
+TOKEN = os.getenv("TOKEN")
 
 bot = Bot(token=TOKEN)
 
@@ -20,28 +21,8 @@ hit_phrases = [
 
 @bot.on.message(text="/обнять <target>")
 async def hug(message: Message, target: str):
-    user = message.from_id
     phrase = random.choice(hug_phrases)
 
     await message.answer(
         phrase.format(
-            user=f"[id{user}|Пользователь]",
-            target=target
-        )
-    )
-
-
-@bot.on.message(text="/ударить <target>")
-async def hit(message: Message, target: str):
-    user = message.from_id
-    phrase = random.choice(hit_phrases)
-
-    await message.answer(
-        phrase.format(
-            user=f"[id{user}|Пользователь]",
-            target=target
-        )
-    )
-
-
-bot.run_forever()
+            user=f"[id{message.from_id}|Польз
