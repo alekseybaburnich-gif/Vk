@@ -1,1 +1,2 @@
-vkbottle
+vkbottle==4.9.0
+loguru==0.7.3
