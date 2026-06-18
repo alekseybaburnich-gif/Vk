@@ -20,9 +20,9 @@ hit_phrases = [
 
 @bot.on.message(text="/обнять <target>")
 async def hug(message: Message, target: str):
-phrase = random.choice(hug_phrases)
+    phrase = random.choice(hug_phrases)
 
-await message.answer(
+    await message.answer(
     phrase.format(
         user=f"[id{message.from_id}|Пользователь]",
         target=target
