@@ -374,12 +374,9 @@ async def action(message,word):
         await message.answer("Кого?")
         return
 
-    add_rep(message.from_user, 1)
-
-await message.answer(
-    f"{message.from_user.first_name} {word} {args[1]}\n"
-    f"⭐ Репутация +1"
-)
+    await message.answer(
+        f"{message.from_user.first_name} {word} {args[1]}"
+    )
 
 
 @dp.message(Command("обнять"))
