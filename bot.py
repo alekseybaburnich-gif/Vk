@@ -142,6 +142,20 @@ def add_rep(user, amount):
 
     db.commit()
 
+def add_rep(user, amount):
+
+    cur.execute(
+        "INSERT OR IGNORE INTO reputation(user_id) VALUES(?)",
+        (user.id,)
+    )
+
+    cur.execute(
+        "UPDATE reputation SET rep=rep+? WHERE user_id=?",
+        (amount,user.id)
+    )
+
+    db.commit()
+
 @dp.message(Command("start"))
 async def start(message:types.Message):
 
