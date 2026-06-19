@@ -95,6 +95,7 @@ def add_xp(user,amount):
 
 
 
+
 def add_message(user):
 
     cur.execute(
@@ -107,8 +108,12 @@ def add_message(user):
         (user.id,)
     )
 
-    db.commit()
+    add_xp(
+        user,
+        random.randint(1,5)
+    )
 
+    db.commit()
 
 
 
