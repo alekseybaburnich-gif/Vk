@@ -365,7 +365,7 @@ async def buy(message: types.Message):
 
     prices={
         "дракон":500,
-        "меч":300,
+        "меч":150,
         "талисман":200
     }
 
