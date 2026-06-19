@@ -26,6 +26,15 @@ last_work INTEGER DEFAULT 0
 
 db.commit()
 
+cur.execute("""
+CREATE TABLE IF NOT EXISTS items(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+user_id INTEGER,
+item TEXT
+)
+""")
+
+db.commit()
 
 def user_add(user):
     cur.execute(
@@ -293,6 +302,134 @@ async def give(message:types.Message):
     await message.answer(
         f"💸 Передано {amount} монет {args[1]}"
     )
+
+@dp.message(Command("дуэль"))
+async def duel(message: types.Message):
+
+    args = message.text.split()
+
+    if len(args) < 2:
+        await message.answer(
+            "⚔️ Напиши: /дуэль @user"
+        )
+        return
+
+    win = random.choice([True, False])
+
+    if win:
+        add_money(message.from_user, 50)
+        add_xp(message.from_user, 30)
+
+        await message.answer(
+            f"⚔️ {message.from_user.first_name} победил!\n"
+            "💰 +50 монет\n"
+            "⭐ +30 опыта"
+        )
+
+    else:
+        add_money(message.from_user, -20)
+
+        await message.answer(
+            f"💀 {message.from_user.first_name} проиграл\n"
+            "💰 -20 монет"
+        )
+
+
+
+@dp.message(Command("магазин"))
+async def shop(message: types.Message):
+
+    await message.answer(
+        "🏪 Магазин:\n\n"
+        "🐉 Дракон — 500 монет\n"
+        "⚔️ Меч — 300 монет\n"
+        "🍀 Талисман — 200 монет\n\n"
+        "Покупка:\n"
+        "/купить меч"
+    )
+
+
+
+@dp.message(Command("купить"))
+async def buy(message: types.Message):
+
+    args = message.text.split()
+
+    if len(args)<2:
+        await message.answer(
+            "Что купить?"
+        )
+        return
+
+    item=args[1]
+
+    prices={
+        "дракон":500,
+        "меч":300,
+        "талисман":200
+    }
+
+    if item not in prices:
+        await message.answer(
+            "Такого предмета нет"
+        )
+        return
+
+
+    coins,_=user_data(message.from_user)
+
+    if coins < prices[item]:
+        await message.answer(
+            "💸 Не хватает монет"
+        )
+        return
+
+
+    add_money(
+        message.from_user,
+        -prices[item]
+    )
+
+
+    cur.execute(
+        "INSERT INTO items(user_id,item) VALUES(?,?)",
+        (message.from_user.id,item)
+    )
+
+    db.commit()
+
+
+    await message.answer(
+        f"🎁 Куплено: {item}"
+    )
+
+
+
+@dp.message(Command("инвентарь"))
+async def inventory(message:types.Message):
+
+    cur.execute(
+        "SELECT item FROM items WHERE user_id=?",
+        (message.from_user.id,)
+    )
+
+    items=cur.fetchall()
+
+
+    if not items:
+        await message.answer(
+            "🎒 Инвентарь пуст"
+        )
+        return
+
+
+    text="🎒 Твои вещи:\n"
+
+    for i in items:
+        text += f"• {i[0]}\n"
+
+
+    await message.answer(text)
 
 if __name__=="__main__":
     asyncio.run(main())
