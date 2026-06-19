@@ -136,20 +136,40 @@ async def start(message:types.Message):
         "/help"
     )
 
-
-
 @dp.message(Command("профиль"))
-async def profile(message):
+async def profile(message: types.Message):
 
-    coins,xp=user_data(message.from_user)
+    coins, xp = user_data(message.from_user)
 
-    await message.answer(
-        f"👤 {message.from_user.first_name}\n"
-        f"💰 {coins}\n"
-        f"⭐ {xp}\n"
-        f"🏆 Уровень {xp//100+1}"
+    lvl = xp // 100 + 1
+
+
+    cur.execute(
+        "SELECT messages FROM stats WHERE user_id=?",
+        (message.from_user.id,)
     )
 
+    data = cur.fetchone()
+
+    messages = data[0] if data else 0
+
+
+    cur.execute(
+        "SELECT COUNT(*) FROM items WHERE user_id=?",
+        (message.from_user.id,)
+    )
+
+    items = cur.fetchone()[0]
+
+
+    await message.answer(
+        f"👤 {message.from_user.first_name}\n\n"
+        f"🏆 Уровень: {lvl}\n"
+        f"⭐ Опыт: {xp}\n"
+        f"💰 Монеты: {coins}\n"
+        f"💬 Сообщений: {messages}\n"
+        f"🎒 Вещей: {items}"
+    )
 
 
 @dp.message(Command("баланс"))
