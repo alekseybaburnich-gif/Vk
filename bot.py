@@ -538,5 +538,115 @@ async def auto_reply(message: types.Message):
             "😊 Всегда пожалуйста"
         )
 
+# ===== СТАТИСТИКА СООБЩЕНИЙ =====
+
+cur.execute("""
+CREATE TABLE IF NOT EXISTS stats(
+user_id INTEGER PRIMARY KEY,
+messages INTEGER DEFAULT 0
+)
+""")
+
+db.commit()
+
+
+def add_message(user):
+
+    cur.execute(
+        "INSERT OR IGNORE INTO stats(user_id) VALUES(?)",
+        (user.id,)
+    )
+
+    cur.execute(
+        "UPDATE stats SET messages=messages+1 WHERE user_id=?",
+        (user.id,)
+    )
+
+    db.commit()
+
+
+
+@dp.message()
+async def message_counter(message: types.Message):
+
+    if message.from_user:
+        add_message(message.from_user)
+
+
+
+@dp.message(Command("стата"))
+async def stats(message: types.Message):
+
+    cur.execute(
+        "SELECT messages FROM stats WHERE user_id=?",
+        (message.from_user.id,)
+    )
+
+    data=cur.fetchone()
+
+    count=data[0] if data else 0
+
+    await message.answer(
+        f"📊 Твоя статистика:\n"
+        f"💬 Сообщений: {count}"
+    )
+
+
+
+# ===== НОВЫЕ РЕАКЦИИ =====
+
+
+@dp.message(Command("пожалеть"))
+async def pity(message: types.Message):
+
+    args=message.text.split()
+
+    if len(args)<2:
+        await message.answer(
+            "Кого пожалеть?"
+        )
+        return
+
+    await message.answer(
+        f"🥺 {message.from_user.first_name} пожалел(а) {args[1]}"
+    )
+
+
+
+@dp.message(Command("пожатьруку"))
+async def hand(message: types.Message):
+
+    args=message.text.split()
+
+    if len(args)<2:
+        return
+
+    await message.answer(
+        f"🤝 {message.from_user.first_name} пожал руку {args[1]}"
+    )
+
+
+
+@dp.message(Command("ржать"))
+async def laugh(message: types.Message):
+
+    args=message.text.split()
+
+    if len(args)<2:
+        return
+
+    await message.answer(
+        f"😂 {message.from_user.first_name} смеётся вместе с {args[1]}"
+    )
+
+
+
+@dp.message(Command("обидеться"))
+async def angry(message: types.Message):
+
+    await message.answer(
+        "😤 Я обиделся... но ненадолго"
+    )
+
 if __name__=="__main__":
     asyncio.run(main())
