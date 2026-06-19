@@ -457,6 +457,47 @@ async def all_messages(message):
     elif "кек" in text:
         await message.answer("🤣")
 
+@dp.message(Command("день"))
+async def daily(message: types.Message):
+
+    user_add(message.from_user)
+
+    cur.execute(
+        "SELECT last_work FROM users WHERE id=?",
+        (message.from_user.id,)
+    )
+
+    last = cur.fetchone()[0]
+
+    now = int(time.time())
+
+    if now - last < 86400:
+        await message.answer(
+            "⏳ Награда уже забрана. Приходи завтра!"
+        )
+        return
+
+
+    reward = random.randint(50,150)
+
+    add_money(
+        message.from_user,
+        reward
+    )
+
+
+    cur.execute(
+        "UPDATE users SET last_work=? WHERE id=?",
+        (now,message.from_user.id)
+    )
+
+    db.commit()
+
+
+    await message.answer(
+        f"🎁 Ежедневная награда!\n"
+        f"💰 +{reward} монет"
+    )
 
 async def main():
     await dp.start_polling(bot)
