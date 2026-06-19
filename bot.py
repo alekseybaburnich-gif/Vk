@@ -412,5 +412,11 @@ async def all_messages(message):
     elif "кек" in text:
         await message.answer("🤣")
 
+
+async def main():
+
+    await dp.start_polling(bot)
+
+
 if __name__=="__main__":
     asyncio.run(main())
