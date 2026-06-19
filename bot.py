@@ -384,6 +384,18 @@ async def help_cmd(message):
         "/стата"
     )
 
+@dp.message(Command("уровень"))
+async def level(message: types.Message):
+
+    coins,xp = user_data(message.from_user)
+
+    lvl = xp // 100 + 1
+
+    await message.answer(
+        f"⭐ {message.from_user.first_name}\n"
+        f"Опыт: {xp}\n"
+        f"Уровень: {lvl}"
+    )
 
 @dp.message()
 async def all_messages(message):
@@ -417,19 +429,6 @@ async def all_messages(message):
     elif "кек" in text:
         await message.answer("🤣")
 
-
-@dp.message(Command("уровень"))
-async def level(message: types.Message):
-
-    coins,xp = user_data(message.from_user)
-
-    lvl = xp // 100 + 1
-
-    await message.answer(
-        f"⭐ {message.from_user.first_name}\n"
-        f"Опыт: {xp}\n"
-        f"Уровень: {lvl}"
-    )
 
 async def main():
     await dp.start_polling(bot)
