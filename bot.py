@@ -431,5 +431,112 @@ async def inventory(message:types.Message):
 
     await message.answer(text)
 
+@dp.message(Command("help"))
+async def help_cmd(message: types.Message):
+
+    await message.answer(
+        "📋 Команды бота:\n\n"
+        "🤗 Общение:\n"
+        "/обнять @user\n"
+        "/поцеловать @user\n"
+        "/погладить @user\n"
+        "/дать_пять @user\n\n"
+        "🎲 Развлечения:\n"
+        "/кубик\n"
+        "/монетка\n"
+        "/шанс\n"
+        "/шутка\n"
+        "/факт\n"
+        "/совет\n\n"
+        "💰 Профиль:\n"
+        "/профиль\n"
+        "/баланс\n"
+        "/работать\n"
+        "/топ"
+    )
+
+
+
+@dp.message(Command("шутка"))
+async def joke(message: types.Message):
+
+    jokes = [
+        "Почему программист пошёл в магазин? Потому что закончились баги 😄",
+        "Компьютер не спит — он просто переходит в режим ожидания 😴",
+        "Мой код работает. Не спрашивайте почему 😂"
+    ]
+
+    await message.answer(
+        random.choice(jokes)
+    )
+
+
+
+@dp.message(Command("факт"))
+async def fact(message: types.Message):
+
+    facts = [
+        "🐙 У осьминога три сердца.",
+        "🦈 Акулы старше деревьев.",
+        "🌎 Земля вращается быстрее, чем кажется."
+    ]
+
+    await message.answer(
+        random.choice(facts)
+    )
+
+
+
+@dp.message(Command("совет"))
+async def advice(message: types.Message):
+
+    tips = [
+        "💡 Не откладывай маленькие дела.",
+        "💡 Учись чему-то понемногу каждый день.",
+        "💡 Иногда лучший план — начать."
+    ]
+
+    await message.answer(
+        random.choice(tips)
+    )
+
+
+
+@dp.message(Command("настроение"))
+async def mood(message: types.Message):
+
+    moods = [
+        "😎 Отличное!",
+        "😴 Сонное",
+        "🔥 Боевой режим",
+        "😂 Весёлое"
+    ]
+
+    await message.answer(
+        random.choice(moods)
+    )
+
+
+
+@dp.message()
+async def auto_reply(message: types.Message):
+
+    text = message.text.lower()
+
+    if "привет" in text:
+        await message.answer(
+            "👋 Привет!"
+        )
+
+    elif "как дела" in text:
+        await message.answer(
+            "🤖 Работаю, всё отлично!"
+        )
+
+    elif "спасибо" in text:
+        await message.answer(
+            "😊 Всегда пожалуйста"
+        )
+
 if __name__=="__main__":
     asyncio.run(main())
