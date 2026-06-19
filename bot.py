@@ -380,7 +380,6 @@ async def help_cmd(message):
     )
 
 
-
 @dp.message()
 async def all_messages(message):
 
@@ -390,9 +389,7 @@ async def all_messages(message):
     if not message.text:
         return
 
-
-    text=message.text.lower()
-
+    text = message.text.lower()
 
     if "привет" in text:
         await message.answer("👋 Привет!")
@@ -403,22 +400,7 @@ async def all_messages(message):
     elif "спасибо" in text:
         await message.answer("😊 Пожалуйста")
 
-
-
-async def main():
-
-    await dp.start_polling(bot)
-
-@dp.message()
-async def chat_reactions(message):
-
-    if not message.text:
-        return
-
-    text = message.text.lower()
-
-
-    if "жиза" in text:
+    elif "жиза" in text:
         await message.answer("😎 Жиза")
 
     elif "имба" in text:
@@ -429,28 +411,6 @@ async def chat_reactions(message):
 
     elif "кек" in text:
         await message.answer("🤣")
-
-
-@dp.message()
-async def all_messages(message):
-
-    if message.from_user:
-        add_message(message.from_user)
-
-    if not message.text:
-        return
-
-    text = message.text.lower()
-
-
-    if "привет" in text:
-        await message.answer("👋 Привет!")
-
-    elif "как дела" in text:
-        await message.answer("🤖 Работаю 😎")
-
-    elif "спасибо" in text:
-        await message.answer("😊 Пожалуйста")
 
 if __name__=="__main__":
     asyncio.run(main())
