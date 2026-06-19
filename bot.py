@@ -97,11 +97,6 @@ def add_xp(user,amount):
 
 def add_message(user):
 
-    coins, old_xp = user_data(user)
-
-    old_lvl = old_xp // 100 + 1
-
-
     cur.execute(
         "INSERT OR IGNORE INTO stats(user_id) VALUES(?)",
         (user.id,)
@@ -112,28 +107,12 @@ def add_message(user):
         (user.id,)
     )
 
-
-    gain = random.randint(1,5)
-
     add_xp(
         user,
-        gain
+        random.randint(1,5)
     )
 
-
-    new_xp = old_xp + gain
-    new_lvl = new_xp // 100 + 1
-
-
     db.commit()
-
-
-    if new_lvl > old_lvl:
-        return True, new_lvl
-
-    return False, new_lvl
-
-
 
 
 @dp.message(Command("start"))
@@ -447,13 +426,10 @@ async def top_activity(message: types.Message):
 async def all_messages(message):
 
     if message.from_user:
+        add_message(message.from_user)
 
-    level_up, lvl = add_message(message.from_user)
-
-    if level_up:
-        await message.answer(
-            f"🎉 {message.from_user.first_name} получил {lvl} уровень!"
-        )
+    if not message.text:
+        return
 
     if not message.text:
         return
