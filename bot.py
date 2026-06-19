@@ -418,10 +418,6 @@ async def all_messages(message):
         await message.answer("🤣")
 
 
-async def main():
-
-    await dp.start_polling(bot)
-
 @dp.message(Command("уровень"))
 async def level(message: types.Message):
 
@@ -434,6 +430,10 @@ async def level(message: types.Message):
         f"Опыт: {xp}\n"
         f"Уровень: {lvl}"
     )
+
+async def main():
+    await dp.start_polling(bot)
+
 
 if __name__=="__main__":
     asyncio.run(main())
