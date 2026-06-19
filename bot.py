@@ -464,6 +464,44 @@ async def daily(message: types.Message):
         f"💰 +{reward} монет"
     )
 
+@dp.message(Command("ачивки"))
+async def achievements(message: types.Message):
+
+    coins, xp = user_data(message.from_user)
+
+    cur.execute(
+        "SELECT messages FROM stats WHERE user_id=?",
+        (message.from_user.id,)
+    )
+
+    data = cur.fetchone()
+
+    messages = data[0] if data else 0
+
+
+    text = "🏅 Твои ачивки:\n\n"
+
+
+    if messages >= 10:
+        text += "✅ Болтун\n"
+    else:
+        text += "🔒 Болтун (10 сообщений)\n"
+
+
+    if coins >= 500:
+        text += "✅ Богач\n"
+    else:
+        text += "🔒 Богач (500 монет)\n"
+
+
+    if xp >= 100:
+        text += "✅ Опытный\n"
+    else:
+        text += "🔒 Опытный (100 XP)\n"
+
+
+    await message.answer(text)
+
 @dp.message()
 async def all_messages(message):
 
