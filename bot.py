@@ -165,6 +165,134 @@ async def main():
 
     await dp.start_polling(bot)
 
+@dp.message(Command("кубик"))
+async def dice(message: types.Message):
+    num = random.randint(1,6)
+
+    await message.answer(
+        f"🎲 Выпало: {num}"
+    )
+
+
+@dp.message(Command("монетка"))
+async def coin(message: types.Message):
+
+    await message.answer(
+        random.choice([
+            "🪙 Орёл!",
+            "🪙 Решка!"
+        ])
+    )
+
+
+@dp.message(Command("шанс"))
+async def chance(message: types.Message):
+
+    await message.answer(
+        f"🎯 Шанс: {random.randint(0,100)}%"
+    )
+
+
+
+actions = {
+    "обнять":"🤗 обнял(а)",
+    "поцеловать":"😘 поцеловал(а)",
+    "погладить":"😊 погладил(а)",
+    "дать_пять":"🙌 дал(а) пять",
+    "ударить":"👊 ударил(а)"
+}
+
+
+async def do_action(message, act):
+
+    args = message.text.split()
+
+    if len(args) < 2:
+        await message.answer(
+            "Укажи пользователя"
+        )
+        return
+
+    await message.answer(
+        f"{message.from_user.first_name} "
+        f"{act} {args[1]}"
+    )
+
+
+
+@dp.message(Command("обнять"))
+async def hug(message):
+    await do_action(message,"🤗 обнял(а)")
+
+
+@dp.message(Command("поцеловать"))
+async def kiss(message):
+    await do_action(message,"😘 поцеловал(а)")
+
+
+@dp.message(Command("погладить"))
+async def pat(message):
+    await do_action(message,"😊 погладил(а)")
+
+
+@dp.message(Command("дать_пять"))
+async def highfive(message):
+    await do_action(message,"🙌 дал(а) пять")
+
+
+@dp.message(Command("ударить"))
+async def hit(message):
+    await do_action(message,"👊 ударил(а)")
+
+
+
+@dp.message(Command("топ"))
+async def top(message: types.Message):
+
+    cur.execute(
+        "SELECT name,coins FROM users ORDER BY coins DESC LIMIT 10"
+    )
+
+    users = cur.fetchall()
+
+    text="🏆 ТОП игроков:\n\n"
+
+    for i,u in enumerate(users,1):
+        text += f"{i}. {u[0]} — 💰 {u[1]}\n"
+
+    await message.answer(text)
+
+
+
+@dp.message(Command("дать"))
+async def give(message:types.Message):
+
+    args = message.text.split()
+
+    if len(args)<3:
+        await message.answer(
+            "Пример: /дать @user 50"
+        )
+        return
+
+    amount=int(args[2])
+
+    coins,_ = user_data(message.from_user)
+
+    if coins < amount:
+        await message.answer(
+            "Недостаточно монет"
+        )
+        return
+
+    add_money(
+        message.from_user,
+        -amount
+    )
+
+    await message.answer(
+        f"💸 Передано {amount} монет {args[1]}"
+    )
 
 if __name__=="__main__":
     asyncio.run(main())
