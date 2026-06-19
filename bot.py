@@ -397,6 +397,33 @@ async def level(message: types.Message):
         f"Уровень: {lvl}"
     )
 
+@dp.message(Command("топактив"))
+async def top_activity(message: types.Message):
+
+    cur.execute(
+        "SELECT user_id,messages FROM stats ORDER BY messages DESC LIMIT 10"
+    )
+
+    users = cur.fetchall()
+
+    text = "🏆 Топ активности:\n\n"
+
+    for i, user in enumerate(users, 1):
+
+        cur.execute(
+            "SELECT name FROM users WHERE id=?",
+            (user[0],)
+        )
+
+        name = cur.fetchone()
+
+        username = name[0] if name else "Игрок"
+
+        text += f"{i}. {username} — 💬 {user[1]}\n"
+
+
+    await message.answer(text)
+
 @dp.message()
 async def all_messages(message):
 
