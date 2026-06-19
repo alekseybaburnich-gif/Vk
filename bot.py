@@ -1,47 +1,39 @@
-from vkbottle import Bot
-from vkbottle.bot import Message
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters import Command
+import asyncio
 import random
 import os
 
 TOKEN = os.getenv("TOKEN")
 
 bot = Bot(token=TOKEN)
+dp = Dispatcher()
 
-hug_phrases = [
-    "🤗 {user} крепко обнял(а) {target}!",
-    "❤️ {user} тепло обнял(а) {target}!",
-    "😊 {user} заключил(а) {target} в объятия!"
+hugs = [
+    "🤗 {user} обнял(а) {target}!",
+    "❤️ {user} крепко обнял(а) {target}!",
+    "😊 {user} тепло обнял(а) {target}!"
 ]
 
-hit_phrases = [
-    "💥 {user} ударил(а) {target} подушкой!",
-    "🥊 {user} слегка стукнул(а) {target}!",
-    "⚡ {user} устроил(а) дружеский удар по {target}!"
-]
+@dp.message(Command("обнять"))
+async def hug(message: types.Message):
+    args = message.text.split()
 
+    if len(args) < 2:
+        await message.answer("Укажи кого обнять 😊")
+        return
 
-@bot.on.message(text="/обнять <target>")
-async def hug(message: Message, target: str):
-    phrase = random.choice(hug_phrases)
+    target = args[1]
 
     await message.answer(
-        phrase.format(
-            user=f"[id{message.from_id}|Пользователь]",
+        random.choice(hugs).format(
+            user=message.from_user.first_name,
             target=target
         )
     )
 
+async def main():
+    await dp.start_polling(bot)
 
-@bot.on.message(text="/ударить <target>")
-async def hit(message: Message, target: str):
-    phrase = random.choice(hit_phrases)
-
-    await message.answer(
-        phrase.format(
-            user=f"[id{message.from_id}|Пользователь]",
-            target=target
-        )
-    )
-
-
-bot.run()
+if __name__ == "__main__":
+    asyncio.run(main())
