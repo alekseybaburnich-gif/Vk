@@ -54,7 +54,14 @@ messages INTEGER DEFAULT 0
 
 db.commit()
 
+cur.execute("""
+CREATE TABLE IF NOT EXISTS reputation(
+user_id INTEGER PRIMARY KEY,
+rep INTEGER DEFAULT 0
+)
+""")
 
+db.commit()
 
 def user_add(user):
     cur.execute(
@@ -121,6 +128,19 @@ def add_message(user):
 
     db.commit()
 
+def add_rep(user, amount):
+
+    cur.execute(
+        "INSERT OR IGNORE INTO reputation(user_id) VALUES(?)",
+        (user.id,)
+    )
+
+    cur.execute(
+        "UPDATE reputation SET rep=rep+? WHERE user_id=?",
+        (amount,user.id)
+    )
+
+    db.commit()
 
 @dp.message(Command("start"))
 async def start(message:types.Message):
@@ -354,10 +374,12 @@ async def action(message,word):
         await message.answer("Кого?")
         return
 
-    await message.answer(
-        f"{message.from_user.first_name} {word} {args[1]}"
-    )
+    add_rep(message.from_user, 1)
 
+await message.answer(
+    f"{message.from_user.first_name} {word} {args[1]}\n"
+    f"⭐ Репутация +1"
+)
 
 
 @dp.message(Command("обнять"))
