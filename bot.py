@@ -27,6 +27,13 @@ last_work INTEGER DEFAULT 0
 )
 """)
 
+try:
+    cur.execute(
+        "ALTER TABLE users ADD COLUMN last_daily INTEGER DEFAULT 0"
+    )
+    db.commit()
+except:
+    pass
 
 cur.execute("""
 CREATE TABLE IF NOT EXISTS items(
@@ -463,7 +470,7 @@ async def daily(message: types.Message):
     user_add(message.from_user)
 
     cur.execute(
-        "SELECT last_work FROM users WHERE id=?",
+        "SELECT last_daily FROM users WHERE id=?",
         (message.from_user.id,)
     )
 
@@ -471,9 +478,10 @@ async def daily(message: types.Message):
 
     now = int(time.time())
 
+
     if now - last < 86400:
         await message.answer(
-            "⏳ Награда уже забрана. Приходи завтра!"
+            "⏳ Ты уже забрал награду сегодня"
         )
         return
 
@@ -487,7 +495,7 @@ async def daily(message: types.Message):
 
 
     cur.execute(
-        "UPDATE users SET last_work=? WHERE id=?",
+        "UPDATE users SET last_daily=? WHERE id=?",
         (now,message.from_user.id)
     )
 
