@@ -502,6 +502,67 @@ async def achievements(message: types.Message):
 
     await message.answer(text)
 
+@dp.message(Command("дуэль"))
+async def duel(message: types.Message):
+
+    args = message.text.split()
+
+    if len(args) < 2:
+        await message.answer(
+            "⚔️ Напиши:\n/дуэль @user"
+        )
+        return
+
+
+    enemy = args[1]
+
+    _, xp = user_data(message.from_user)
+
+    my_power = xp // 10 + random.randint(10,50)
+    enemy_power = random.randint(10,100)
+
+
+    await message.answer(
+        f"⚔️ Битва!\n\n"
+        f"🔥 {message.from_user.first_name}\n"
+        f"Сила: {my_power}\n\n"
+        f"🆚 {enemy}\n"
+        f"Сила: {enemy_power}"
+    )
+
+
+    if my_power >= enemy_power:
+
+        reward = random.randint(50,150)
+
+        add_money(
+            message.from_user,
+            reward
+        )
+
+        add_xp(
+            message.from_user,
+            25
+        )
+
+        await message.answer(
+            f"🏆 Победа!\n"
+            f"💰 +{reward}\n"
+            f"⭐ +25 XP"
+        )
+
+    else:
+
+        add_xp(
+            message.from_user,
+            5
+        )
+
+        await message.answer(
+            "💀 Поражение...\n"
+            "⭐ +5 XP за бой"
+        )
+
 @dp.message()
 async def all_messages(message):
 
