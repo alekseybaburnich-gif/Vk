@@ -429,6 +429,21 @@ async def top_activity(message: types.Message):
 
     await message.answer(text)
 
+@dp.message(Command("день"))
+async def daily(message: types.Message):
+
+    reward = random.randint(50,150)
+
+    add_money(
+        message.from_user,
+        reward
+    )
+
+    await message.answer(
+        f"🎁 Ежедневная награда!\n"
+        f"💰 +{reward} монет"
+    )
+
 @dp.message()
 async def all_messages(message):
 
