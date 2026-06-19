@@ -16,184 +16,153 @@ cur = db.cursor()
 
 cur.execute("""
 CREATE TABLE IF NOT EXISTS users(
-    id INTEGER PRIMARY KEY,
-    name TEXT,
-    coins INTEGER DEFAULT 100,
-    xp INTEGER DEFAULT 0
+id INTEGER PRIMARY KEY,
+name TEXT,
+coins INTEGER DEFAULT 100,
+xp INTEGER DEFAULT 0,
+last_work INTEGER DEFAULT 0
 )
 """)
 
 db.commit()
 
 
-def add_user(user):
+def user_add(user):
     cur.execute(
         "INSERT OR IGNORE INTO users(id,name) VALUES(?,?)",
-        (user.id, user.first_name)
+        (user.id,user.first_name)
     )
     db.commit()
 
 
-def get_user(user):
-    add_user(user)
+def user_data(user):
+    user_add(user)
+
     cur.execute(
         "SELECT coins,xp FROM users WHERE id=?",
         (user.id,)
     )
+
     return cur.fetchone()
 
 
-def change_coins(user, amount):
-    add_user(user)
+def add_money(user,amount):
+    user_add(user)
+
     cur.execute(
         "UPDATE users SET coins=coins+? WHERE id=?",
         (amount,user.id)
     )
+
     db.commit()
 
 
-def change_xp(user, amount):
-    add_user(user)
+def add_xp(user,amount):
+    user_add(user)
+
     cur.execute(
         "UPDATE users SET xp=xp+? WHERE id=?",
         (amount,user.id)
     )
+
     db.commit()
 
 
 
 @dp.message(Command("start"))
-async def start(message: types.Message):
-    add_user(message.from_user)
+async def start(message:types.Message):
+
+    user_add(message.from_user)
+
     await message.answer(
-        "🔥 Бот запущен!\n"
+        "🔥 Бот запущен!\n\n"
         "Команды:\n"
         "/профиль\n"
-        "/баланс\n"
         "/работать\n"
         "/топ\n"
-        "/обнять @user\n"
-        "/кубик"
+        "/кубик\n"
+        "/монетка"
     )
 
 
 
 @dp.message(Command("профиль"))
-async def profile(message: types.Message):
-    coins,xp = get_user(message.from_user)
+async def profile(message:types.Message):
+
+    coins,xp=user_data(message.from_user)
+
+    lvl=xp//100+1
 
     await message.answer(
         f"👤 {message.from_user.first_name}\n"
         f"💰 Монеты: {coins}\n"
-        f"⭐ Опыт: {xp}"
-    )
-
-
-
-@dp.message(Command("баланс"))
-async def balance(message: types.Message):
-    coins,xp = get_user(message.from_user)
-
-    await message.answer(
-        f"💰 Твой баланс: {coins}"
+        f"⭐ Опыт: {xp}\n"
+        f"🏆 Уровень: {lvl}"
     )
 
 
 
 @dp.message(Command("работать"))
-async def work(message: types.Message):
+async def work(message:types.Message):
 
-    reward = random.randint(10,50)
+    user_add(message.from_user)
 
-    change_coins(message.from_user,reward)
-    change_xp(message.from_user,10)
-
-    await message.answer(
-        f"🛠 Ты поработал!\n"
-        f"Получено: +{reward} монет"
+    cur.execute(
+        "SELECT last_work FROM users WHERE id=?",
+        (message.from_user.id,)
     )
 
+    last=cur.fetchone()[0]
 
+    now=int(time.time())
 
-@dp.message(Command("кубик"))
-async def dice(message: types.Message):
-
-    num=random.randint(1,6)
-
-    await message.answer(
-        f"🎲 Выпало число: {num}"
-    )
-
-
-
-@dp.message(Command("монетка"))
-async def coin(message: types.Message):
-
-    await message.answer(
-        random.choice(
-            ["🪙 Орёл","🪙 Решка"]
-        )
-    )
-
-
-
-actions={
-"обнять":"🤗 обнял(а)",
-"поцеловать":"😘 поцеловал(а)",
-"погладить":"😊 погладил(а)",
-"ударить":"👊 ударил(а)"
-}
-
-
-
-async def action(message,cmd):
-
-    args=message.text.split()
-
-    if len(args)<2:
+    if now-last < 60:
         await message.answer(
-            "Нужно указать пользователя"
+            "⏳ Подожди минуту"
         )
         return
 
+
+    reward=random.randint(20,100)
+
+    add_money(
+        message.from_user,
+        reward
+    )
+
+    add_xp(
+        message.from_user,
+        20
+    )
+
+    cur.execute(
+        "UPDATE users SET last_work=? WHERE id=?",
+        (now,message.from_user.id)
+    )
+
+    db.commit()
+
+
     await message.answer(
-        f"{message.from_user.first_name} "
-        f"{actions[cmd]} {args[1]}"
+        f"🛠 Работа выполнена!\n"
+        f"💰 +{reward}"
     )
 
 
 
-@dp.message(Command("обнять"))
-async def hug(message):
-    await action(message,"обнять")
+@dp.message(Command("баланс"))
+async def balance(message:types.Message):
 
-
-@dp.message(Command("поцеловать"))
-async def kiss(message):
-    await action(message,"поцеловать")
-
-
-@dp.message(Command("погладить"))
-async def pat(message):
-    await action(message,"погладить")
-
-
-@dp.message(Command("ударить"))
-async def hit(message):
-    await action(message,"ударить")
-
-
-
-@dp.message(Command("шанс"))
-async def chance(message):
+    coins,xp=user_data(message.from_user)
 
     await message.answer(
-        f"🎯 Шанс: {random.randint(0,100)}%"
+        f"💰 Баланс: {coins}"
     )
 
 
 
 async def main():
+
     await dp.start_polling(bot)
 
 
