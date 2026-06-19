@@ -142,19 +142,6 @@ def add_rep(user, amount):
 
     db.commit()
 
-def add_rep(user, amount):
-
-    cur.execute(
-        "INSERT OR IGNORE INTO reputation(user_id) VALUES(?)",
-        (user.id,)
-    )
-
-    cur.execute(
-        "UPDATE reputation SET rep=rep+? WHERE user_id=?",
-        (amount,user.id)
-    )
-
-    db.commit()
 
 @dp.message(Command("start"))
 async def start(message:types.Message):
@@ -482,58 +469,6 @@ async def top_activity(message: types.Message):
 
     await message.answer(text)
 
-@dp.message(Command("день"))
-async def daily(message: types.Message):
-
-    reward = random.randint(50,150)
-
-    add_money(
-        message.from_user,
-        reward
-    )
-
-    await message.answer(
-        f"🎁 Ежедневная награда!\n"
-        f"💰 +{reward} монет"
-    )
-
-@dp.message(Command("ачивки"))
-async def achievements(message: types.Message):
-
-    coins, xp = user_data(message.from_user)
-
-    cur.execute(
-        "SELECT messages FROM stats WHERE user_id=?",
-        (message.from_user.id,)
-    )
-
-    data = cur.fetchone()
-
-    messages = data[0] if data else 0
-
-
-    text = "🏅 Твои ачивки:\n\n"
-
-
-    if messages >= 10:
-        text += "✅ Болтун\n"
-    else:
-        text += "🔒 Болтун (10 сообщений)\n"
-
-
-    if coins >= 500:
-        text += "✅ Богач\n"
-    else:
-        text += "🔒 Богач (500 монет)\n"
-
-
-    if xp >= 100:
-        text += "✅ Опытный\n"
-    else:
-        text += "🔒 Опытный (100 XP)\n"
-
-
-    await message.answer(text)
 
 @dp.message(Command("дуэль"))
 async def duel(message: types.Message):
