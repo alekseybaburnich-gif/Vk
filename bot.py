@@ -427,6 +427,7 @@ async def help_cmd(message):
         "/кубик\n"
         "/обнять\n"
         "/стата"
+        "/слот\n"
     )
 
 @dp.message(Command("уровень"))
@@ -613,6 +614,64 @@ async def achievements(message: types.Message):
 
     if len(result) > 0:
         await message.answer(result)
+
+@dp.message(Command("слот"))
+async def slot(message: types.Message):
+
+    coins, _ = user_data(message.from_user)
+
+    if coins < 50:
+        await message.answer(
+            "💸 Нужно минимум 50 монет"
+        )
+        return
+
+    add_money(message.from_user, -50)
+
+    symbols = ["🍒", "🍋", "💎", "7️⃣"]
+
+    a = random.choice(symbols)
+    b = random.choice(symbols)
+    c = random.choice(symbols)
+
+    result = f"{a} | {b} | {c}"
+
+    if a == b == c:
+
+        win = 300
+
+        add_money(
+            message.from_user,
+            win
+        )
+
+        await message.answer(
+            f"🎰 {result}\n\n"
+            f"🏆 Джекпот!\n"
+            f"💰 +{win}"
+        )
+
+    elif a == b or b == c or a == c:
+
+        win = 100
+
+        add_money(
+            message.from_user,
+            win
+        )
+
+        await message.answer(
+            f"🎰 {result}\n\n"
+            f"✨ Совпадение!\n"
+            f"💰 +{win}"
+        )
+
+    else:
+
+        await message.answer(
+            f"🎰 {result}\n\n"
+            "💀 Проигрыш"
+        )
 
 @dp.message()
 async def all_messages(message):
